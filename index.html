@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cek Umur Akurat</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #111827, #1e3a8a);
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #d1d5db;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .box {
+      background: rgba(255,255,255,.08);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .umur {
+      text-align: center;
+      font-size: 25px;
+      font-weight: bold;
+      color: #93c5fd;
+    }
+
+    .label {
+      color: #cbd5e1;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .error {
+      display: none;
+      color: #fca5a5;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>🎂 Cek Umur</h1>
+    <p class="subtitle">
+      Hitung umur berdasarkan tanggal lahir secara akurat
+    </p>
+
+    <label for="tanggalLahir">Tanggal Lahir</label>
+
+    <input
+      type="date"
+      id="tanggalLahir"
+    >
+
+    <button onclick="cekUmur()">
+      🔍 Cek Umur
+    </button>
+
+    <p class="error" id="error">
+      Tanggal lahir tidak valid.
+    </p>
+
+    <div class="result" id="result">
+
+      <div class="box">
+        <div class="label">Tanggal Lahir</div>
+        <div class="value" id="lahir"></div>
+      </div>
+
+      <div class="box">
+        <div class="label">Tanggal Sekarang</div>
+        <div class="value" id="sekarang"></div>
+      </div>
+
+      <div class="box">
+        <div class="umur" id="umur"></div>
+      </div>
+
+      <div class="box">
+        <div class="label">Total Umur</div>
+        <div class="value" id="totalHari"></div>
+      </div>
+
+      <div class="box">
+        <div class="label">Ulang Tahun Berikutnya</div>
+        <div class="value" id="ulangTahun"></div>
+      </div>
+
+      <div class="box">
+        <div class="label">Sisa Menuju Ulang Tahun</div>
+        <div class="value" id="sisa"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+<script>
+
+function formatTanggal(tanggal) {
+  return tanggal.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function cekUmur() {
+
+  const input = document.getElementById("tanggalLahir").value;
+  const result = document.getElementById("result");
+  const error = document.getElementById("error");
+
+  if (!input) {
+    result.style.display = "none";
+    error.style.display = "block";
+    return;
+  }
+
+  // Buat tanggal lokal agar tidak terkena masalah timezone
+  const [tahun, bulan, hari] = input.split("-").map(Number);
+
+  const lahir = new Date(tahun, bulan - 1, hari);
+
+  // Validasi tanggal
+  if (
+    lahir.getFullYear() !== tahun ||
+    lahir.getMonth() !== bulan - 1 ||
+    lahir.getDate() !== hari
+  ) {
+    result.style.display = "none";
+    error.style.display = "block";
+    return;
+  }
+
+  const sekarang = new Date();
+
+  if (lahir > sekarang) {
+    result.style.display = "none";
+    error.style.display = "block";
+    return;
+  }
+
+  error.style.display = "none";
+  result.style.display = "block";
+
+  // =========================
+  // HITUNG UMUR
+  // =========================
+
+  let umurTahun =
+    sekarang.getFullYear() - lahir.getFullYear();
+
+  let umurBulan =
+    sekarang.getMonth() - lahir.getMonth();
+
+  let umurHari =
+    sekarang.getDate() - lahir.getDate();
+
+  // Jika hari negatif
+  if (umurHari < 0) {
+
+    umurBulan--;
+
+    const hariBulanSebelumnya =
+      new Date(
+        sekarang.getFullYear(),
+        sekarang.getMonth(),
+        0
+      ).getDate();
+
+    umurHari += hariBulanSebelumnya;
+  }
+
+  // Jika bulan negatif
+  if (umurBulan < 0) {
+    umurTahun--;
+    umurBulan += 12;
+  }
+
+  // =========================
+  // TOTAL HARI
+  // =========================
+
+  const selisihMs = sekarang - lahir;
+
+  const totalHari =
+    Math.floor(
+      selisihMs / (1000 * 60 * 60 * 24)
+    );
+
+  // =========================
+  // ULANG TAHUN BERIKUTNYA
+  // =========================
+
+  let tahunBerikutnya =
+    sekarang.getFullYear();
+
+  let ulangTahun =
+    new Date(
+      tahunBerikutnya,
+      lahir.getMonth(),
+      lahir.getDate()
+    );
+
+  if (ulangTahun < sekarang) {
+    tahunBerikutnya++;
+    ulangTahun =
+      new Date(
+        tahunBerikutnya,
+        lahir.getMonth(),
+        lahir.getDate()
+      );
+  }
+
+  // =========================
+  // SISA HARI
+  // =========================
+
+  const sisaMs =
+    ulangTahun - sekarang;
+
+  const sisaHari =
+    Math.ceil(
+      sisaMs / (1000 * 60 * 60 * 24)
+    );
+
+  // =========================
+  // TAMPILKAN
+  // =========================
+
+  document.getElementById("lahir").textContent =
+    formatTanggal(lahir);
+
+  document.getElementById("sekarang").textContent =
+    formatTanggal(sekarang);
+
+  document.getElementById("umur").textContent =
+    `${umurTahun} tahun, ${umurBulan} bulan, ${umurHari} hari`;
+
+  document.getElementById("totalHari").textContent =
+    `${totalHari.toLocaleString("id-ID")} hari`;
+
+  document.getElementById("ulangTahun").textContent =
+    formatTanggal(ulangTahun);
+
+  document.getElementById("sisa").textContent =
+    `${sisaHari} hari lagi`;
+
+}
+
+</script>
+
+</body>
+</html>
